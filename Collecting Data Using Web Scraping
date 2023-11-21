@@ -1,0 +1,36 @@
+from bs4 import BeautifulSoup
+import requests
+
+url = "https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-DA0321EN-SkillsNetwork/labs/datasets/Programming_Languages.html"
+
+# Get the contents of the webpage in text format and store in a variable called data
+data = requests.get(url).text
+
+soup = BeautifulSoup(data, "html5lib")  # Create a soup object using the variable 'data'
+
+# Find an HTML table in the web page
+table = soup.find('table')  # In HTML, a table is represented by the tag <table>
+
+# Initialize a list to store the data as dictionaries
+language_data = []
+
+# Iterate through rows in the table
+for row in table.find_all('tr')[1:]:  # Skip the header row (index 0)
+    # Get all columns in each row
+    cols = row.find_all('td')  # In HTML, a column is represented by the tag <td>
+
+    # Extract name of the programming language (column 2) and average annual salary (column 4)
+    language_name = cols[1].getText().strip()
+    avg_salary = cols[3].getText().strip()
+
+    # Add the data to the list as a dictionary
+    language_data.append({'Language': language_name, 'Average Annual Salary': avg_salary})
+
+# Sort the list of dictionaries based on the 'Average Annual Salary' in descending order
+sorted_language_data = sorted(language_data, key=lambda x: float(x['Average Annual Salary'].replace('$', '').replace(',', '')), reverse=True)
+
+# Print the sorted results in a tabular format
+print("{:<20} {:<20}".format('Language', 'Average Annual Salary'))
+print("-" * 40)
+for item in sorted_language_data:
+    print("{:<20} {:<20}".format(item['Language'], item['Average Annual Salary']))
